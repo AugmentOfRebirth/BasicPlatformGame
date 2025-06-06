@@ -1,3 +1,4 @@
+using Unity.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public float movementSpeed;
     public float jumpForce;
     private float inputHorizontal;
+    //private bool grounded = false;
+    private int maxNumJumps;
+    private int numJumps;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,6 +18,9 @@ public class PlayerController : MonoBehaviour
         //because the rigidbody2d is attached to the player
         //and this script is also attached to the player
         playerRigidBody = GetComponent<Rigidbody2D>();
+
+        maxNumJumps = 1;
+        numJumps = 1;
     }
 
     // Update is called once per frame
@@ -34,13 +41,59 @@ public class PlayerController : MonoBehaviour
         inputHorizontal = Input.GetAxisRaw("Horizontal");
 
         playerRigidBody.linearVelocity = new Vector2(movementSpeed * inputHorizontal, playerRigidBody.linearVelocity.y);
+
+        if(inputHorizontal != 0)
+        {
+            flipPlayerSprite(inputHorizontal);
+        }
+    }
+
+    private void flipPlayerSprite(float inputHorizontal)
+    {
+        if (inputHorizontal > 0)
+        {
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (inputHorizontal < 0)
+        {
+            transform.localRotation = Quaternion.Euler(0, 180, 0);
+        }
     }
 
     private void jump()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if(Input.GetKeyDown(KeyCode.Space) && numJumps <= maxNumJumps)
         {
             playerRigidBody.linearVelocity = new Vector2(playerRigidBody.linearVelocity.x, jumpForce);
+
+            numJumps++;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log(collision.gameObject);
+        if (collision.gameObject.CompareTag("Grounded"))
+        {
+            //grounded = true;
+            numJumps = 1;
+        }
+    }
+
+    //private void OnCollisionExit2D(Collision2D collision)
+    //{
+    //    if(collision.gameObject.CompareTag("Grounded"))
+    //    {
+    //        grounded = false;
+    //    }
+    //}
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.CompareTag("DoubleJump"))
+        {
+            maxNumJumps = 2;
+            //Destroy(collision.gameObject);
         }
     }
 }
