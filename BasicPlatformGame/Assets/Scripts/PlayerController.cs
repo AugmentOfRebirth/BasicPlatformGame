@@ -1,5 +1,6 @@
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -94,6 +95,11 @@ public class PlayerController : MonoBehaviour
         {
             maxNumJumps = 2;
             //Destroy(collision.gameObject);
+        }
+        else if(collision.gameObject.CompareTag("OB"))
+        {
+            //restart the level
+            SceneManager.LoadScene("Level01");
         }
     }
 }
